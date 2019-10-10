@@ -5,16 +5,16 @@ export default class MattCalc extends React.Component {
     super(props)
 
     this.state = {
-      screenNum: "",
+      display: "",
       lastNum: 0,
       validFirstEntry: true,
       containsDecimal: false,
-      waitForInput: false,
+      clearOnNextNumber: false,
       debug: ""
     }
   }
   checkValidity = () => {
-    const testNum = this.state.screenNum.toString()
+    const testNum = this.state.display.toString()
     if (testNum.length < 10) {
       this.setState({ validFirstEntry: true })
     } else {
@@ -28,36 +28,54 @@ export default class MattCalc extends React.Component {
 
     }
   }
+
+  onUpdateScreen = (num) => {
+    const returnnum = ("" + this.state.display + num)
+    this.setState({ display: returnnum })
+  }
+  onClearScreen = () => {
+    this.setState({ display: '', debug: 'on clear screen works'})
+  }
+
+
   onNumPress = num => {
     this.checkValidity()
-    if (this.state.validFirstEntry && !this.state.containsDecimal) {
-      const returnnum = ("" + this.state.screenNum + num)
-      this.setState({
-        screenNum: returnnum
-      })
-    }
-  }
+
+    // if (this.state.display !== '') {
+    //   this.setState({ lastNum: })
+    // }
+
+    if (this.state.validFirstEntry && this.state.clearOnNextNumber) {
+        const returnnum = ("" + num)
+        this.setState({ display: returnnum, clearOnNextNumber: false })
+      } else {
+        const returnnum = ("" + this.state.display + num)
+            this.setState({ display: returnnum })
+      }
+}
+
+
+
   onPlus = () => {
     // if there is no previous number entry
     if (!this.state.lastNum) {
       this.setState({ debug: "works" })
-      const toLastNumber = parseFloat(this.state.screenNum)
+      const toLastNumber = parseFloat(this.state.display)
       // save current number as last num and clear screen
-      this.setState({ lastNum: toLastNumber, screenNum: "" })
+      this.setState({ lastNum: toLastNumber, clearOnNextNumber: true })
     } else {
-      const newAddition = parseFloat(this.state.screenNum)
+      const newAddition = parseFloat(this.state.display)
       const newTotal = (this.state.lastNum + newAddition)
-      this.setState({ debug: "added", screenNum: newTotal})
+      this.setState({ debug: "added", display: newTotal, clearOnNextNumber: true, lastNum: newTotal})
     }
   }
   render () {
     return (
       <View style={styles.container}>
-      <View><Text>{this.state.debug}</Text>
+        <View><Text>{this.state.debug}</Text></View>
+      <View style={styles.numberscreen}>
+        <Text style={styles.numscreen2}>{this.state.display}</Text>
       </View>
-      <View
-        style={styles.numberscreen}
-      ><Text style={styles.numscreen2}>{this.state.screenNum}</Text></View>
       <View style={styles.middlerow}>
           <View style={styles.numboard}>
             <View style={styles.numrow}>
@@ -161,14 +179,14 @@ export default class MattCalc extends React.Component {
               <Text
               style={styles.enterclear}
               onPress={() => {
-                this.setState({ screenNum: "" })
+                this.setState({ display: "" })
               }}>clear</Text>
             </TouchableOpacity>
             <TouchableOpacity>
               <Text
               style={styles.enterclear}
               onPress={() => {
-                this.setState({ screenNum: "", lastNum: 0 })
+                this.setState({ display: "", lastNum: 0 })
               }}>CE</Text>
             </TouchableOpacity>
             <TouchableOpacity>
