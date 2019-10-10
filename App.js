@@ -7,28 +7,54 @@ export default class MattCalc extends React.Component {
     this.state = {
       screenNum: "",
       lastNum: 0,
-      validEntry: true
+      validFirstEntry: true,
+      containsDecimal: false,
+      waitForInput: false,
+      debug: ""
     }
   }
   checkValidity = () => {
-    if (this.state.screenNum < 100000000) {
-      this.setState({ validEntry: true })
+    const testNum = this.state.screenNum.toString()
+    if (testNum.length < 10) {
+      this.setState({ validFirstEntry: true })
     } else {
-      this.setState({ validEntry: false})
+      this.setState({ validFirstEntry: false })
+    }
+  }
+  checkDecimal = () => {
+    if (!this.state.containsDecimal) {
+
+    } else {
+
     }
   }
   onNumPress = num => {
     this.checkValidity()
-    if (this.state.validEntry) {
+    if (this.state.validFirstEntry && !this.state.containsDecimal) {
       const returnnum = ("" + this.state.screenNum + num)
       this.setState({
         screenNum: returnnum
       })
     }
   }
+  onPlus = () => {
+    // if there is no previous number entry
+    if (!this.state.lastNum) {
+      this.setState({ debug: "works" })
+      const toLastNumber = parseFloat(this.state.screenNum)
+      // save current number as last num and clear screen
+      this.setState({ lastNum: toLastNumber, screenNum: "" })
+    } else {
+      const newAddition = parseFloat(this.state.screenNum)
+      const newTotal = (this.state.lastNum + newAddition)
+      this.setState({ debug: "added", screenNum: newTotal})
+    }
+  }
   render () {
     return (
       <View style={styles.container}>
+      <View><Text>{this.state.debug}</Text>
+      </View>
       <View
         style={styles.numberscreen}
       ><Text style={styles.numscreen2}>{this.state.screenNum}</Text></View>
@@ -113,7 +139,8 @@ export default class MattCalc extends React.Component {
           <View style={styles.operatorboard}>
               <TouchableOpacity>
                 <Text
-                style={styles.operators}>+</Text>
+                style={styles.operators}
+                onPress={() => this.onPlus()}>+</Text>
               </TouchableOpacity>
               <TouchableOpacity>
                 <Text
@@ -139,7 +166,10 @@ export default class MattCalc extends React.Component {
             </TouchableOpacity>
             <TouchableOpacity>
               <Text
-              style={styles.enterclear}>CE</Text>
+              style={styles.enterclear}
+              onPress={() => {
+                this.setState({ screenNum: "", lastNum: 0 })
+              }}>CE</Text>
             </TouchableOpacity>
             <TouchableOpacity>
               <Text
@@ -161,8 +191,9 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     color: 'white',
     borderRadius: 50,
-    fontSize: 40,
-    padding: 25
+    fontSize: 30,
+    padding: 18,
+    margin: 5
   },
   numscreen2: {
     fontSize: 50,
@@ -173,7 +204,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     color: 'white',
     width: '90%',
     height: '10%',
